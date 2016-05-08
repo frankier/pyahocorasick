@@ -16,6 +16,7 @@
 #include "trie.h"
 #include "Automaton.h"
 #include "AutomatonSearchIter.h"
+#include "AutomatonSearchIterLong.h"
 #include "AutomatonItemsIter.h"
 
 /* code */
@@ -24,6 +25,8 @@
 #include "trie.c"
 #include "slist.c"
 #include "Automaton.c"
+#include "AutomatonSearchIter.c"
+#include "AutomatonSearchIterLong.c"
 #include "AutomatonItemsIter.c"
 #include "AutomatonSearchIter.c"
 
