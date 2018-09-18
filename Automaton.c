@@ -894,6 +894,7 @@ automaton_iter(PyObject* self, PyObject* args) {
 
 	object = PyTuple_GetItem(args, 0);
 	if (object) {
+	    if (automaton->key_type == KEY_STRING) {
 #ifdef PY3K
     #ifdef AHOCORASICK_UNICODE
 		if (PyUnicode_Check(object)) {
@@ -927,6 +928,17 @@ automaton_iter(PyObject* self, PyObject* args) {
 			return NULL;
         }
 #endif
+	    }
+	    else {
+		if (PyTuple_Check(object)) {
+		    // TODO: Check is tuple
+		    start = 0;
+		    end = PyTuple_GET_SIZE(object);
+		} else {
+		    PyErr_SetString(PyExc_TypeError, "tuple required");
+		    return NULL;
+		}
+	    }
 	}
 	else
 		return NULL;
