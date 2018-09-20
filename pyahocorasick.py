@@ -101,7 +101,7 @@ for method_name in [
     setattr(TokenAutomaton, method_name, mk_plain_wrapped_meth(method_name))
 
 
-def conf_net_search(auto, conf_net):
+def conf_net_search(auto, conf_net, elem_id_fn=lambda x: x):
     """
     Searches a confusion network (encoded as an iterable of iterables) with an
     Aho-Corasick Automaton (ACA). It does this by keeping several pointers into
@@ -133,7 +133,8 @@ def conf_net_search(auto, conf_net):
         seen_auto_its = {root_id}
         next_auto_its = []
         # We can get duplicates with the current scheme, so filter
-        elems = set()
+        elem_ids = set()
+        elems = []
         # Save the current root to ensure the right character index
         cur_root = None
         for auto_it in auto_its:
@@ -143,7 +144,10 @@ def conf_net_search(auto, conf_net):
                 for elem in new_auto_it:
                     if new_auto_it.pos_id() in next_auto_its:
                         break
-                    elems.add(elem)
+                    elem_id = elem_id_fn(elem)
+                    if elem_id not in elem_ids:
+                        elem_ids.add(elem_id)
+                        elems.append(elem)
                 if new_auto_it.pos_id() not in seen_auto_its:
                     seen_auto_its.add(new_auto_it.pos_id())
                     next_auto_its.append(new_auto_it)
