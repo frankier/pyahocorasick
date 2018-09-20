@@ -872,7 +872,13 @@ class TestIntSequence__TrieMethods(TestIntSequenceBase):
         with self.assertRaises(ValueError) as e:
             A.add_word((1, -1, 12), "foo")
 
-        self.assertEqual(str(e.exception), "item #1: value -1 outside range [0..65535]")
+        errmsg = str(e.exception)
+        msgs = [
+            "item #1: value -1 outside range [0..65535]",
+            "item #1: value -1 outside range [0..4294967295]",
+        ]
+
+        self.assertIn(errmsg, msgs)
 
 
     def test_add__case_8__wrong_value(self):
@@ -885,10 +891,13 @@ class TestIntSequence__TrieMethods(TestIntSequenceBase):
         # but the type remains the same.
 
         errmsg = str(e.exception)
-        msg1 = "item #0: value 4398046511104 outside range [0..65535]"
-        msg2 = "item #0 is not a number"
+        msgs = [
+            "item #0: value 4398046511104 outside range [0..65535]",
+            "item #0: value 4398046511104 outside range [0..4294967295]",
+            "item #0 is not a number",
+        ]
 
-        self.assertIn(errmsg, [msg1, msg2])
+        self.assertIn(errmsg, msgs)
 
 
     def test_match(self):
@@ -906,6 +915,43 @@ class TestIntSequence__TrieMethods(TestIntSequenceBase):
         ret = A.add_word((1, 2, 3, 4, 5, 6), "foo")
         self.assertEqual(A.longest_prefix((1, 2, 3, 111, 1111, 11111)), 3);
         self.assertEqual(A.longest_prefix((111, 1111, 11111)), 0);
+
+    def test_iter1(self):
+        A = self.A
+
+        A.add_word((1, 2, 3), "foo")
+        A.add_word((2, 3, 4, 5), "bar")
+        A.add_word((2, 3, 5), "baz")
+        A.make_automaton()
+
+        L = [(index, value) for index, value in A.iter((1, 2, 3, 5))]
+
+        self.assertEqual(L, [
+            (2, "foo"),
+            (3, "baz"),
+        ])
+
+    def test_iter2(self):
+        A = self.A
+
+        A.add_word((43, 89), (43, 89))
+        A.add_word((43, 89, 64), (43, 89, 64))
+        A.add_word((89, 64), (89, 64))
+        A.add_word((89, 100), (89, 100))
+        A.make_automaton()
+
+        L = [
+            (index, value)
+            for index, value in
+            A.iter((80, 80, 43, 89, 90, 89, 64, 100, 43, 89, 100))
+        ]
+
+        self.assertEqual(L, [
+            (3, (43, 89)),
+            (6, (89, 64)),
+            (9, (43, 89)),
+            (10, (89, 100)),
+        ])
 
 
 class TestIssue53(unittest.TestCase):
