@@ -37,6 +37,9 @@ struct Input {
 	Py_ssize_t 			wordlen;
 	TRIE_LETTER_TYPE* 	word;
 	PyObject* 			py_word;
+#if defined PEP393_UNICODE
+	bool is_copy;
+#endif
 };
 
 
